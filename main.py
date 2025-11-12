@@ -1,19 +1,23 @@
 '''
 Import necesarios
 '''
-import tablero
-import barco
-import usuario
+from tablero import Tablero
+from barco import Barcos
+from usuario import Usuario
+import modulo_funciones as mf
 
-def innit():
+def init():
     '''
     Creación de tableros con barcos posicionados
     '''
-    ia = usuario()
-    jugador = usuario()
+    ia = Usuario()
+    jugador = Usuario()
     
-    tablero_ia = tablero() # argumentos
-    tablero_jugador = tablero() # argumentos
+    barcos_ia = Barcos()
+    barcos_jugador = Barcos()
+    
+    tablero_ia = Tablero(barcos_ia) # argumentos
+    tablero_jugador = Tablero(barcos_jugador) # argumentos
     
     tablero_ia.crear_tablero()
     pass
@@ -36,7 +40,7 @@ def end():
     pass
 
 def main():
-    innit()
+    init()
     update()
     end()
     pass

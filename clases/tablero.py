@@ -8,4 +8,6 @@ class Tablero:
     def crear_tablero():
         pass
     
+    def representar_tablero(tablero):
+        pass
     
