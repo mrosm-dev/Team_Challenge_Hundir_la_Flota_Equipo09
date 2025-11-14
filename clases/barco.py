@@ -1,35 +1,35 @@
-from dataclasses import field
-rom typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 import random
+from variables import filas_tablero, columnas_tablero
 
-Coord = Tuple[int, int]  # (fila, columna), empezando en 0
+Coord = Tuple[int, int]  # (fila, columna), index empieza en 0
 
 class Barco:
-    nombre: str
-    eslora: int #cuantas casillas ocupa, la longitud del barco
-    coordenadas: List[Coord] = field(default_factory=list) #genera lista vacia para cada barco
-    hits: List[bool] = field(default_factory=list) # marca true si la casilla del barco es impactada
+    def __init__(self, nombre: str, eslora: int):
+        self.nombre: str = nombre
+        self.eslora: int = eslora
+        self.coordenadas: List[Coord] = []
+        self.hits: List[bool] = []
 
-    def fijar_coordenadas(self, coords):
-        self.coordenadas = list(coords) #asignamos coordenadas barco
-        self.hits = [False] * len(self.coordenadas) #lista de impactos mismo tamaño que coordenadas, al principio la marcamos toda con false porque asumimos que no hay impactos
+    def fijar_coordenadas(self, coords: List[Coord]) -> None:
+        self.coordenadas = list(coords) #asigna coordenadas
+        self.hits = [False] * len(self.coordenadas) #iniciamos lista vacia
 
-    def hundido(self):
-        return len(self.coordenadas) > 0 and all(self.hits) #si todas las posiciones están impactadas y existen coordenadas, el barco está hundido
-        #devuelve true si está hundido
+    def hundido(self) -> bool:
+        return len(self.coordenadas) > 0 and all(self.hits)  #true si todas las posiciones del barco están impactadas y existen las coordenadas
 
     def vidas(self) -> int:
-        return sum(1 for h in self.hits if not h) #recorremos hits y sumamos las que son False (no impactadas)
+        return sum(1 for h in self.hits if not h) #nº casillas no impactadas, sanas
 
-    def registrar_impacto(self, fila, col):
-    # si las coordenadas pertenecen al barco, marca el impacto y devuelve True.
+    def registrar_impacto(self, fila: int, col: int) -> bool:
         objetivo = (fila, col)
         for i, c in enumerate(self.coordenadas):
-            if c == objetivo:
-                if not self.hits[i]:  # por si disparan dos veces a la misma
-                    self.hits[i] = True
+            if c == objetivo: #marca impacto si coordenadas corresponden a las del barco
+                if not self.hits[i]:  # evita dar dos veces la misma casilla
+                    self.hits[i] = True #devuelve true si ha sido impactado
                 return True
         return False
+
 
 class Barcos: #para gestionar todos los barcos de un jugador
 #recibe el diccionario (nombre, eslora) os) y coloca todos los barcos dentro del tablero, sin solaparse
@@ -70,24 +70,36 @@ class Barcos: #para gestionar todos los barcos de un jugador
                 self.ocupada[r][c] = True #marca casillas ocupadas para que no sean usadas por otro barco
 
     def _generar_coordenadas_barco(self, eslora: int) -> List[Coord]:
-        orientaciones = [(1, 0), (0, 1)]  # vertical (1,0) y horizontal (0,1)
+        orientaciones = ["N", "S", "E", "O"]
 
         for _ in range(self.max_intentos):
-            dr, dc = self.rng.choice(orientaciones) #orientacion aleatoria
+            orient = self.rng.choice(orientaciones)
+            fila = self.rng.randint(0, self.rows - 1)
+            col = self.rng.randint(0, self.cols - 1)
 
-            max_fila = self.rows - (eslora if dr == 1 else 1) #Si es vertical (dr==1), resta eslora a filas.
-            max_col = self.cols - (eslora if dc == 1 else 1) #Si es horizontal (dc==1), resta eslora a columnas.
-            fila = self.rng.randint(0, max_fila)
-            col = self.rng.randint(0, max_col)
+            if orient == "N":
+                coords = [(fila - i, col) for i in range(eslora)]
+            elif orient == "S":
+                coords = [(fila + i, col) for i in range(eslora)]
+            elif orient == "E":
+                coords = [(fila, col + i) for i in range(eslora)]
+            else:  # "O"
+                coords = [(fila, col - i) for i in range(eslora)]
 
-            coords = [(fila + i * dr, col + i * dc) for i in range(eslora)] #Construye todas las casillas que ocuparía el barco
+            #para comprobar que estan dentro del tablero
+            dentro = all(0 <= r < self.rows and 0 <= c < self.cols for r, c in coords)
+            if not dentro:
+                continue
 
-            if all(not self.ocupada[r][c] for (r, c) in coords): #Si todas esas casillas están libres (False en ocupada), devuelve esas coordenadas
+            #para comprobar que estan libres las posiciones
+            libre = all(not self.ocupada[r][c] for r, c in coords)
+            if libre:
                 return coords
 
         raise RuntimeError(
-            f"No se pudo colocar un barco de eslora {eslora} tras {self.max_intentos} intentos"
+            f"No se pudo colocar un barco de eslora {eslora}, ha habido ya {self.max_intentos} intentos"
         )
+
 
     def registrar_impacto(self, fila: int, col: int) -> Optional[Barco]:
         for b in self.barcos:
