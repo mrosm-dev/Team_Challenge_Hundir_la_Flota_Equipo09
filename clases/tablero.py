@@ -5,7 +5,8 @@ class Tablero:
         self.filas = filas
         pass
     
-    def crear_tablero():
+    def crear_tablero(lado = 10, agua = "-"):
+        tablero = np.full((lado,lado),agua)
+        return tablero
         pass
-    
     
