@@ -108,7 +108,7 @@ class Barcos: #para gestionar todos los barcos de un jugador
         return None #devuelve none si fue al agua
 
     def vidas_totales(self) -> int:
-        return sum(b.vidas for b in self.barcos) #Suma las vidas (casillas no impactadas) de todos los barcos
+        return sum(b.vidas() for b in self.barcos)
 
     def todos_hundidos(self) -> bool:
         return self.vidas_totales() == 0 #True si ya no queda ninguna casilla de barco viva.
