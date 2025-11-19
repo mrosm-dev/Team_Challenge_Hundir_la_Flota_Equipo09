@@ -1,6 +1,7 @@
+from dataclasses import field
 from typing import Dict, List, Optional, Tuple
 import random
-from variables import filas_tablero, columnas_tablero
+import variables
 
 Coord = Tuple[int, int]  # (fila, columna), index empieza en 0
 
@@ -36,8 +37,8 @@ class Barcos: #para gestionar todos los barcos de un jugador
     def __init__(
         self,
         fleet_info: Dict[str, int],
-        rows: int = filas_tablero,
-        cols: int = columnas_tablero,
+        rows: int = variables.filas_tablero,
+        cols: int = variables.columnas_tablero,
         seed: Optional[int] = None,
         max_intentos: int = 2000,
     ):

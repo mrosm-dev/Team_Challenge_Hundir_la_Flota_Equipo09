@@ -4,10 +4,10 @@ columnas_tablero = 10
 agua = " "
 barco = "O"
 tocado = "X"
-agua_tiro = "-"
+agua_tiro = "-" 
 
 flota = {
-    "Barco_1": 4,  # un barco de 4 casillas
+    "Barco_1": 4,
     "Barco_2A": 3,
     "Barco_2B": 3,
     "Barco_3A": 2,

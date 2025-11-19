@@ -1,49 +1,65 @@
-'''
-Import necesarios
-'''
-from tablero import Tablero
-from barco import Barcos
-from usuario import Usuario
+from clases.tablero import Tablero
+from clases.barco import Barcos
 import modulo_funciones as mf
+import variables
+
 
 def init():
-    '''
-    Creación de tableros con barcos posicionados
-    '''
-    ia = Usuario()
-    jugador = Usuario()
-    
-    barcos_ia = Barcos()
-    barcos_jugador = Barcos()
-    
-    tablero_ia = Tablero(barcos_ia) # argumentos
-    tablero_jugador = Tablero(barcos_jugador) # argumentos
-    
-    tablero_ia.crear_tablero()
-    pass
+    tablero_jugador = Tablero(variables.columnas_tablero, variables.filas_tablero, 0)
+    tablero_IA = Tablero(variables.columnas_tablero, variables.filas_tablero, 1)
 
-def update():
-    '''
-    Lógica de juego
-        - Donde quieres disparar
-        - Comprobar si hemos acertado o no
-        - Comprobar si el juego ha terminado
-        - Pasar siguiente jugador
-    '''
-    pass
+    barcos_jugador = Barcos(variables.flota)
+    barcos_IA = Barcos(variables.flota)
+
+    tablero_jugador.posicionar_barcos(barcos_jugador.barcos)
+    tablero_IA.posicionar_barcos(barcos_IA.barcos)
+
+    return tablero_jugador, tablero_IA, barcos_jugador, barcos_IA
+
+
+def update(tab_jug, tab_ia, bar_jug, bar_ia):
+
+    jugador_turno = True
+
+    while True:
+
+        print("\n---- TU TABLERO ----") # TODO TABLERO JUGADOR
+        print(tab_jug.tablero)
+
+        print("\n ---TABLERO DE LA IA ---")
+        mf.mostrar_tablero_visible_IA(tab_ia.tablero)
+
+        if jugador_turno:
+            print("\n--- TU TURNO ---") # TURNO JUGADOR
+            sigue = mf.disparoJugador(tab_ia.tablero, bar_ia)
+
+            if bar_ia.todos_hundidos():
+                print("\nHAS GANADO!")
+                break
+
+            if not sigue:
+                jugador_turno = False
+
+        else:
+            print("\n--- TURNO DE LA IA ---")
+            mf.disparoIA(tab_jug.tablero, bar_jug)
+            
+
+            if bar_jug.todos_hundidos():
+                print("\nLa IA te ha ganado...")
+                break
+
+            jugador_turno = True
+
 
 def end():
-    '''
-    Colocar output gáfico (print) representando como han 
-    quedado los tableros.
-    '''
-    pass
+    print("\nGracias por jugar.\n")
+
 
 def main():
-    init()
-    update()
+    tab_jug, tab_ia, bar_jug, bar_ia = init()
+    update(tab_jug, tab_ia, bar_jug, bar_ia)
     end()
-    pass
 
-if __name__ == "main":
-    main()
+
+main()
